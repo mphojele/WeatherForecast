@@ -3,7 +3,7 @@
     ViewData["Title"] = "WeatherForecast";
 }
 
-<h2>WeatherForecast</h2>
+<h2>Weather Forecast - </h2> @*Put the location here*@
 
 @(Html.DevExtreme().DataGrid<WeatherForecast>()
     .DataSource(d => d.Mvc().Controller("WeatherForecastAPI").LoadAction("Get"))
@@ -11,10 +11,10 @@
 
         columns.AddFor(m => m.Date);
 
-        columns.AddFor(m => m.TemperatureC);
+        columns.AddFor(m => m.TemperatureMin);
 
-        columns.AddFor(m => m.TemperatureF).AllowEditing(false);
+        columns.AddFor(m => m.TemperatureMax);
 
-        columns.AddFor(m => m.Summary);
+        columns.AddFor(m => m.WeatherCondition);
     })
 )

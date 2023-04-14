@@ -22,7 +22,7 @@ namespace WeatherForecast
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            } 
+            }
             else
             {
                 app.UseExceptionHandler("/Error");

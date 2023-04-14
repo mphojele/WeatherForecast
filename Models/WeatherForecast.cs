@@ -2,14 +2,12 @@ namespace WeatherForecast.Models
 {
     public class WeatherForecast
     {
-        public City City { get; set; }
-
         public DateTime Date { get; set; }
 
-        public int TemperatureC { get; set; }
+        public string WeatherCondition { get; set; }
 
-        public int TemperatureF => 32 + (int)(this.TemperatureC / 0.5556);
+        public float TemperatureMin { get; set; }
 
-        public string? Summary { get; set; }
+        public float TemperatureMax { get; set; }
     }
 }
