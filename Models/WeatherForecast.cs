@@ -2,6 +2,8 @@ namespace WeatherForecast.Models
 {
     public class WeatherForecast
     {
+        public City City { get; set; }
+
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }
