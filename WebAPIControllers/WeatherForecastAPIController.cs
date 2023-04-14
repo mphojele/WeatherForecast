@@ -7,9 +7,9 @@ namespace WeatherForecast.WebAPIControllers
     using System.Text.Json;
     using System.Text.Json.Nodes;
     using System.Threading.Tasks;
-
+    using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
     using Microsoft.AspNetCore.Mvc;
-
+    using Microsoft.Extensions.Caching.Memory;
     using WeatherForecast.Models;
 
     [ApiController]
@@ -19,17 +19,25 @@ namespace WeatherForecast.WebAPIControllers
         private static readonly HttpClient HttpClient = new ();
 
         private readonly ILogger<WeatherForecastAPIController> logger;
+        private readonly IMemoryCache memoryCache;
         private readonly Uri forecastUrl = new ("https://api.open-meteo.com/v1/forecast");
         private readonly Uri geocodingUrl = new ("https://geocoding-api.open-meteo.com/v1/search");
+        private readonly string cacheKey = "forecasts";
 
-        public WeatherForecastAPIController(ILogger<WeatherForecastAPIController> logger)
+        public WeatherForecastAPIController(ILogger<WeatherForecastAPIController> logger, IMemoryCache memoryCache)
         {
             this.logger = logger;
+            this.memoryCache = memoryCache;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
         public async Task<IActionResult> GetAsync()
         {
+            if (this.memoryCache.TryGetValue(this.cacheKey, out List<WeatherForecast> weeklyForecast))
+            {
+                return this.Ok(weeklyForecast);
+            }
+
             var city = await this.GetCityAsync();
             var requestUrl = new StringBuilder(this.forecastUrl.ToString())
                 .Append($"?latitude={city.Latitude.ToString(CultureInfo.InvariantCulture)}")
@@ -40,7 +48,7 @@ namespace WeatherForecast.WebAPIControllers
             JsonNode? forecastNode = JsonNode.Parse(jsonString);
 
             var forecastResponse = JsonSerializer.Deserialize<WeatherForecastAPIResponse>(forecastNode["daily"]);
-            var weeklyForecast = new List<WeatherForecast>();
+            weeklyForecast = new List<WeatherForecast>();
             for (int i = 0; i < forecastResponse.Dates.Count; i++)
             {
                 weeklyForecast.Add(new WeatherForecast()
@@ -51,6 +59,8 @@ namespace WeatherForecast.WebAPIControllers
                     TemperatureMax = forecastResponse.TemperatureMax[i],
                 });
             }
+
+            this.memoryCache.Set(this.cacheKey, weeklyForecast, TimeSpan.FromHours(1));
 
             return this.Ok(weeklyForecast);
         }
