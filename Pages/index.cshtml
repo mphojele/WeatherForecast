@@ -1,0 +1,20 @@
+﻿@page
+@{
+    ViewData["Title"] = "WeatherForecast";
+}
+
+<h2>WeatherForecast</h2>
+
+@(Html.DevExtreme().DataGrid<WeatherForecast>()
+    .DataSource(d => d.Mvc().Controller("WeatherForecastAPI").LoadAction("Get"))
+    .Columns(columns => {
+
+        columns.AddFor(m => m.Date);
+
+        columns.AddFor(m => m.TemperatureC);
+
+        columns.AddFor(m => m.TemperatureF).AllowEditing(false);
+
+        columns.AddFor(m => m.Summary);
+    })
+)
